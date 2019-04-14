@@ -1,2 +1,3 @@
-# calc-react
-A calculator in react.js that also uses a trained ml model to do maths.
+# Calculator in React.js
+
+A calculator created in react that uses a trained ml model to make calculations.
