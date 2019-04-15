@@ -1,4 +1,5 @@
-import * as tf from "@tensorflow/tfjs";
+import * as tf from '@tensorflow/tfjs';
+
 import _ from 'lodash';
 
 class Solution {
@@ -14,25 +15,26 @@ export default class Calc {
     static alphabet = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '+', ' '];
 
     async loadModel() {
-        this.model = await tf.loadLayersModel('/calc-ml-model.json');
+        this.model = await tf.loadLayersModel('http://localhost:3000/model.json');
         return this;
     }
 
     solve(x1, op, x2) {
         const solution = Calc.convert(x1, op, x2);
-        const result = this.model.predict(solution.x);
+        const result = this.model.predict(tf.tensor(solution.x));
+        const data = result.arraySync();
         let expected = Calc.invert(solution.y[0]);
-        let predicted =  Calc.invert(result[0]);
+        let predicted = Calc.invert(data[0]);
         return new Solution(expected, predicted);
     }
 
-    static invert(seq){
+    static invert(seq) {
         let strings = [];
-        for(let pattern of seq){
+        for (let pattern of seq) {
             let maxIndex = 0;
             let maxValue = 0;
-            for(let i in pattern) {
-                if(pattern[i] > maxValue) {
+            for (let i in pattern) {
+                if (pattern[i] > maxValue) {
                     maxValue = pattern[i];
                     maxIndex = i;
                 }
