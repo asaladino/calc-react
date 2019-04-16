@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Calc React",
+  "name": "A calculator in react.js that uses various different sources to perform the calculation.",
   "icons": [
     {
       "src": "favicon.ico",

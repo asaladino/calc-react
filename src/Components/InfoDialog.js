@@ -1,5 +1,4 @@
 import React from "react";
-import PropTypes from 'prop-types';
 import Dialog from "@material-ui/core/Dialog/index";
 import DialogTitle from "@material-ui/core/DialogTitle/index";
 import {withStyles} from "@material-ui/core";
@@ -17,14 +16,15 @@ class InfoDialog extends React.Component {
 
     render() {
         const {classes, onClose, source, ...other} = this.props;
-        console.log(source);
         return (
             <Dialog onClose={this.handleClose} aria-labelledby="customized-dialog-title" {...other}>
                 <DialogTitle id="customized-dialog-title" onClose={this.handleClose}>
                     {source.name}
                 </DialogTitle>
                 <DialogContent>
-                    <Typography gutterBottom>{source.description}</Typography>
+                    <Typography gutterBottom>
+                        <div dangerouslySetInnerHTML={{__html: source.description}}/>
+                    </Typography>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={this.handleClose} color="primary">Done</Button>
@@ -33,10 +33,5 @@ class InfoDialog extends React.Component {
         );
     }
 }
-
-InfoDialog.propTypes = {
-    classes: PropTypes.object.isRequired,
-    onClose: PropTypes.func
-};
 
 export default withStyles(styles)(InfoDialog);

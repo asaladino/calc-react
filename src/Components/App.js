@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types';
 import Calc from "../Models/Calc";
 import sources from "../Models/sources";
 import {withStyles} from "@material-ui/core";
@@ -10,6 +9,7 @@ import Menu from "@material-ui/core/Menu/index";
 import MenuItem from "@material-ui/core/MenuItem/index";
 import InfoIcon from '@material-ui/icons/Info';
 import InfoDialog from "./InfoDialog";
+import _ from 'lodash';
 
 const styles = theme => ({
     root: {
@@ -18,7 +18,7 @@ const styles = theme => ({
     button: {
         padding: theme.spacing.unit * 2,
         textAlign: 'center',
-        margin: theme.spacing.unit
+        width: '100%'
     },
     output: {
         padding: theme.spacing.unit * 2,
@@ -34,6 +34,7 @@ const styles = theme => ({
     }
 });
 
+const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '0'];
 
 class App extends Component {
 
@@ -55,10 +56,46 @@ class App extends Component {
         calc.loadModel().then(() => {
             this.setState({loading: false});
         });
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' || event.key === 'Esc') {
+                this.clear();
+            }
+        });
+        window.addEventListener("keypress", (event) => {
+            if (_.has(numbers, event.key)) {
+                this.doUpdateValue(Number(event.key));
+            }
+            if (event.code === "NumpadAdd" || (event.shiftKey && event.code === "Equal")) {
+                this.doSetOperation('+');
+            }
+            if (event.shiftKey && event.code === "Digit5") {
+                this.percent();
+            }
+            if (event.code === "NumpadMultiply" || (event.shiftKey && event.code === "Digit8")) {
+                this.doSetOperation('X');
+            }
+            if (event.code === "NumpadDivide" || event.code === "Slash") {
+                this.doSetOperation('/');
+            }
+            if (event.code === "NumpadDecimal" || event.code === "Period") {
+                this.setDecimal();
+            }
+            if (event.code === "NumpadSubtract" || event.code === "Minus") {
+                this.doSetOperation('-');
+            }
+            if (event.code === "Enter" || event.code === "NumpadEnter" || (!event.shiftKey && event.code === "Equal")) {
+                this.doSetOperation('=');
+            }
+
+        });
     }
 
     updateValue = (e) => {
         const number = Number(e.target.innerText);
+        this.doUpdateValue(number);
+    };
+
+    doUpdateValue = (number) => {
         const {operation, value, decimal} = this.state;
         if (operation === '=') {
             this.setState({
@@ -73,7 +110,7 @@ class App extends Component {
         } else {
             const append = (Math.pow(.1, decimal) * number);
             this.setState({
-                value: value > 0 ? value + append : value - append,
+                value: value >= 0 ? value + append : value - append,
                 decimal: decimal + 1
             });
         }
@@ -81,6 +118,10 @@ class App extends Component {
 
     setOperation = (e) => {
         let operationButton = e.target.innerText;
+        this.doSetOperation(operationButton);
+    };
+
+    doSetOperation = (operationButton) => {
         const {solution, value, operation, source, calc} = this.state;
         let isEquals = false;
         if (operationButton === '=') {
@@ -121,7 +162,7 @@ class App extends Component {
             });
         }
         if (operationButton === '/') {
-            let newSolution = operation === null ? value : solution * value;
+            let newSolution = operation === null ? value : solution / value;
             this.setState({
                 solution: newSolution,
                 value: 0,
@@ -179,6 +220,10 @@ class App extends Component {
         this.setState({source: e.target.getAttribute('id')});
         this.clear();
         this.handleClose();
+    };
+
+    setDecimal = () => {
+        this.setState({decimal: this.state.decimal === 0 ? 1 : this.state.decimal});
     };
 
     render() {
@@ -308,7 +353,7 @@ class App extends Component {
                         <Grid item xs={3}>
                             <Button className={classes.button} variant="contained" color="secondary"
                                     disabled={source === 'ml'}
-                                    onClick={() => this.setState({decimal: this.state.decimal === 0 ? 1 : this.state.decimal})}
+                                    onClick={this.setDecimal}
                                     aria-label="Decimal Point">.</Button>
                         </Grid>
                         <Grid item xs={3}>
@@ -321,9 +366,5 @@ class App extends Component {
         );
     }
 }
-
-App.propTypes = {
-    classes: PropTypes.object.isRequired,
-};
 
 export default withStyles(styles)(App);
