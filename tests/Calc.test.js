@@ -1,4 +1,4 @@
-import Calc from "../src/Calc";
+import Calc from "../src/Models/Calc";
 
 test('calc to string', () => {
     let x = 30;
@@ -42,8 +42,8 @@ test('invert encoding', () => {
     const solutionAsString = Calc.asString(X, y);
     const solutionAsInteger = Calc.integerEncode(solutionAsString);
     const solutionAsOneHot = Calc.one_hot_encode(solutionAsInteger);
-    const equation = Calc.invert(solutionAsOneHot.x[0]);
-    const solution = Calc.invert(solutionAsOneHot.y[0]);
+    const equation = Calc.invert(solutionAsOneHot.actual[0]);
+    const solution = Calc.invert(solutionAsOneHot.predicted[0]);
     console.log(equation);
     console.log(solution);
 });
