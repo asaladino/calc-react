@@ -1,11 +1,11 @@
-import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs/dist/index';
 
 import _ from 'lodash';
 
 class Solution {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
+    constructor(actual, predicted) {
+        this.actual = actual;
+        this.predicted = predicted;
     }
 }
 
@@ -15,15 +15,15 @@ export default class Calc {
     static alphabet = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '+', ' '];
 
     async loadModel() {
-        this.model = await tf.loadLayersModel('http://localhost:3000/model.json');
+        this.model = await tf.loadLayersModel('/model.json');
         return this;
     }
 
     solve(x1, op, x2) {
         const solution = Calc.convert(x1, op, x2);
-        const result = this.model.predict(tf.tensor(solution.x));
+        const result = this.model.predict(tf.tensor(solution.actual));
         const data = result.arraySync();
-        let expected = Calc.invert(solution.y[0]);
+        let expected = Calc.invert(solution.predicted[0]);
         let predicted = Calc.invert(data[0]);
         return new Solution(expected, predicted);
     }
@@ -73,7 +73,7 @@ export default class Calc {
 
     static integerEncode(solution) {
         const Xenc = [];
-        for (let pattern of solution.x) {
+        for (let pattern of solution.actual) {
             let integer_encoded = [];
             for (let char of pattern) {
                 integer_encoded.push(Calc.alphabet.indexOf(char));
@@ -81,7 +81,7 @@ export default class Calc {
             Xenc.push(integer_encoded);
         }
         const yenc = [];
-        for (let pattern of solution.y) {
+        for (let pattern of solution.predicted) {
             let integer_encoded = [];
             for (let char of pattern) {
                 integer_encoded.push(Calc.alphabet.indexOf(char));
@@ -93,7 +93,7 @@ export default class Calc {
 
     static one_hot_encode(solution) {
         let Xenc = [];
-        for (let seq of solution.x) {
+        for (let seq of solution.actual) {
             let pattern = [];
             for (let index of seq) {
                 let vector = [];
@@ -106,7 +106,7 @@ export default class Calc {
             Xenc.push(pattern);
         }
         let yenc = [];
-        for (let seq of solution.y) {
+        for (let seq of solution.predicted) {
             let pattern = [];
             for (let index of seq) {
                 let vector = [];
